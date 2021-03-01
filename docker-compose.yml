@@ -105,4 +105,5 @@ networks:
       name: ${NETWORK:-webproxy}
 
 volumes:
-  completed: {}
+  completed:
+    external: true

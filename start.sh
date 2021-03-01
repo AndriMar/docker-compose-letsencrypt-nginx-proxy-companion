@@ -17,6 +17,9 @@ fi
 # 2. Create docker network
 docker network create $NETWORK $NETWORK_OPTIONS
 
+# 2.5 Create docker volume
+docker volume create --name=completed
+
 # 3. Verify if second network is configured
 if [ ! -z ${SERVICE_NETWORK+X} ]; then
     docker network create $SERVICE_NETWORK $SERVICE_NETWORK_OPTIONS
