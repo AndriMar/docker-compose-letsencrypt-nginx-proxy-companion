@@ -60,8 +60,49 @@ services:
       options:
         max-size: ${NGINX_LETSENCRYPT_LOG_MAX_SIZE:-2m}
         max-file: ${NGINX_LETSENCRYPT_LOG_MAX_FILE:-10}
+  deluge:
+    image: linuxserver/deluge
+    container_name: deluge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=022 #optional
+      - DELUGE_LOGLEVEL=error #optional
+      - TZ=Europe/London
+      - VIRTUAL_HOST=${DELUGE_DOMAIN}
+      - LETSENCRYPT_HOST=${DELUGE_DOMAIN}
+      - VIRTUAL_PORT=8112
+    volumes:
+      - completed:/completed
+    restart: unless-stopped
+    depends_on:
+      - "nginx-web"
+      - "nginx-letsencrypt"
+      - "nginx-gen"
+
+  medusa:
+    image: pymedusa/medusa@sha256:6dac92f319748bf1124540c979348fde5d5ae94e53c8e499e83f1893318c20a6
+    container_name: medusa
+    environment:
+      - TZ=Europe/London
+      - VIRTUAL_HOST=${MEDUSA_DOMAIN}
+      - LETSENCRYPT_HOST=${MEDUSA_DOMAIN}
+      - VIRTUAL_PORT=8081
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${MEDIA_STORAGE}:/media_storage
+      - completed:/completed
+    restart: unless-stopped
+    depends_on:
+      - "nginx-web"
+      - "nginx-letsencrypt"
+      - "nginx-gen"
 
 networks:
   default:
     external:
       name: ${NETWORK:-webproxy}
+
+volumes:
+  completed: {}
